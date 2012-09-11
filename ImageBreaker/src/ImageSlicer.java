@@ -16,11 +16,10 @@ public class ImageSlicer {
 	public ImageSlicer(BufferedImage i, String filename){
 		img = i;
 		fileInfo = filename.split("\\.");
-		//System.out.println("0:"+fileInfo[0]+" 1: "+fileInfo[1]);
 	}
 
 	/**
-	 * Breaks the given image up and saves the sub images.
+	 * Breaks the given image up and saves the sub images to the user's desktop.
 	 * @param width Width of Subimages
 	 * @param height Height of Subimages
 	 */
@@ -28,7 +27,7 @@ public class ImageSlicer {
 		int x = img.getWidth()/width;
 		int y = img.getHeight()/height;
 		
-		if(x == 0 || y == 0){
+		if(x == 0 && y == 0){
 			infoBox("SubImages are larger than original!", "Error");
 			System.exit(2);
 		}
@@ -40,7 +39,7 @@ public class ImageSlicer {
 		}
 		
 		BufferedImage[][] images = new BufferedImage[x][y];
-		int index = 0;
+		File outputfile = null;
 		for (int j = 0; j < y; ++j){
 			for (int i = 0; i < x; ++i){
 				int w = width;
@@ -54,19 +53,17 @@ public class ImageSlicer {
 				
 				images[i][j] = img.getSubimage(i*width,j*height, w, h);
 				
-				try {				    
-				    File outputfile = new File(fileInfo[0]+"_"+index+"."+fileInfo[fileInfo.length-1]);
-				    ImageIO.write(images[i][j], fileInfo[fileInfo.length-1], outputfile);//Returns true if save succesful
-				    	//System.out.println(outputfile.getCanonicalPath());				    
+				try {		
+					//This will save to user's desktop. Normally it defaults to where the JAR is saved.
+				    outputfile = new File(System.getProperty("user.home") + "/Desktop\\"+fileInfo[0]+"_"+i+"-"+j+"."+fileInfo[fileInfo.length-1]);
+				    ImageIO.write(images[i][j], fileInfo[fileInfo.length-1], outputfile);//Returns true if save succesful			    
 				} catch (IOException e) {
 					infoBox("Save failed!", "Error");
 				}
-				++index;
 			}
 		}
-		try {
-			infoBox("Pictures saved to: "+(new File(fileInfo[0]+"_0"+"."+fileInfo[fileInfo.length-1])).getCanonicalPath()
-					, "Saved");
+		try {			
+			infoBox("Pictures saved to: "+outputfile.getCanonicalPath(), "Saved");
 		} catch (IOException e) {
 			infoBox("Pictures saved", "Saved");
 		}
